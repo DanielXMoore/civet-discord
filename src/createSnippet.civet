@@ -1,0 +1,12 @@
+{ version } from ../node_modules/@danielx/civet/package.json
+
+export createSnippet := (input: string, output: string) =>
+  """
+    ```tsx
+    #{input}
+
+    // ↓↓↓ Civet #{version}
+
+    #{output}
+    ```
+  """
