@@ -1,0 +1,23 @@
+{ SlashCommandBuilder, ChatInputCommandInteraction, CacheType } from discord.js
+{ restart } from ../index.civet
+config from ../config.civet
+
+data := new SlashCommandBuilder()
+		.setName "restart"
+		.setDescription "Restarts the bot."
+		.addBooleanOption(&.setName("detatched").setDescription("Whether or not to detatch the process.").setRequired(false))
+
+async function execute(interaction: ChatInputCommandInteraction<CacheType>) {
+	if config().admins.includes interaction.member?.user.id!
+		await interaction.reply { content: `Restarting...`, ephemeral: true }
+
+		detatched := (!!interaction.options.getBoolean "detatched") ?? true
+		restart detatched
+	else
+		await interaction.reply { content: `You aren't an admin.`, ephemeral: true }
+}
+
+export {
+	data,
+	execute,
+}

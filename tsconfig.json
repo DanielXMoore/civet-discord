@@ -1,17 +1,31 @@
 {
   "transpileOnly": true,
   "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "types": ["node"],
+    "moduleResolution": "Node",
     "jsx": "react",
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "downlevelIteration": true
   },
   "ts-node": {
     "transpileOnly": true,
     "compilerOptions": {
-      "module": "ES2020"
+      "module": "ESNext",
+      "target": "ESNext",
+      "strict": true,
+      "forceConsistentCasingInFileNames": true,
+      "types": ["node"],
+      "moduleResolution": "Node",
+      "jsx": "react",
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "downlevelIteration": true
     }
-  }
+  },
+  "include": ["./src/**/*"]
 }

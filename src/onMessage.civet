@@ -1,35 +1,22 @@
-* as prettier from prettier
 { Message } from discord.js
-{ compile } from @danielx/civet
-{ createSnippet } from ./createSnippet.civet
+compile, { format } from ./compile.civet
+{ client } from ./index.civet
 
 export onMessage := (msg: Message) =>
-  match := msg.content.match /``` ?(civet|coffee)-?(?<raw>raw)?.*?\n(?<code>(?:.|\n)*?)\n```/m
-  unless match return
+	if client?.user?.id is msg.author.id return
 
-  usePrettier := !match.groups!.raw
-  civetCode := match.groups!.code
-  tsCode .= ''
-  prettierInfo .= ''
+	matches := [...msg.content.matchAll /```(civet|coffee)-?(?<raw>raw)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
+	unless matches.length return
 
-  try
-    tsCode = compile civetCode
-  catch e
-    error := e as any
-    input := civetCode
-    output := """
-      #{civetCode.split('\n')[0...error.line].join '\n'}
-      #{' '.repeat error.column - 1}^ #{error.name}
-    """
-    msg.channel.send createSnippet input, output
-  
-  unless tsCode return
+	blocks .= []
 
-  if usePrettier
-    try
-      tsCode = prettier.format tsCode, parser: 'typescript'
-    catch
-      prettierInfo += 'Prettier failed! Fallback to the raw output.\n'
+	for match of matches
+		raw := !!match.groups!.raw
+		civetCode := match.groups!.code
 
-  msg.channel.send prettierInfo + createSnippet civetCode, tsCode
-  return
+		output := format compile civetCode, raw
+		blocks.push output
+
+	msg.channel.send blocks.join "\n"
+
+	return

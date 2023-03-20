@@ -1,0 +1,17 @@
+fs from node:fs
+
+export type Config = {
+	token: string;
+	clientID: string;
+	admins: string[];
+}
+
+export default function config(): Config
+	try
+		return JSON.parse fs.readFileSync("./config.json", "utf8")
+	catch
+		return {
+			token: "",
+			clientID: "",
+			admins: []
+		}

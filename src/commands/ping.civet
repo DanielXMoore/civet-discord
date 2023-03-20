@@ -1,0 +1,14 @@
+{ SlashCommandBuilder, ChatInputCommandInteraction, CacheType } from discord.js
+
+data := new SlashCommandBuilder()
+		.setName "ping"
+		.setDescription "Replies with Pong!"
+
+async function execute(interaction: ChatInputCommandInteraction<CacheType>) {
+	await interaction.reply "Pong!"
+}
+
+export {
+	data,
+	execute,
+}

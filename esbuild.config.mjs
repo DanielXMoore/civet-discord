@@ -1,9 +1,9 @@
-import esbuild from "esbuild";
 import civetPlugin from "@danielx/civet/esbuild-plugin";
+import esbuild from "esbuild";
 
 esbuild
   .build({
-    entryPoints: ["src/index.civet", "src/autoUpdate.civet"],
+    entryPoints: ["src/index.civet"],
     bundle: true,
     platform: "node",
     outdir: "dist",

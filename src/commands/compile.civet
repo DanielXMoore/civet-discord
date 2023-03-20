@@ -1,0 +1,17 @@
+{ SlashCommandBuilder, ChatInputCommandInteraction, CacheType, version as djsVersion } from discord.js
+compile, { format } from ../compile.civet
+
+data := new SlashCommandBuilder()
+		.setName "compile"
+		.setDescription "Compiles some Civet."
+		.addStringOption(&.setName("code").setDescription("The code to compile.").setRequired(true))
+		.addBooleanOption(&.setName("raw").setDescription("Whether or not to format the output code.").setRequired(false))
+
+async function execute(interaction: ChatInputCommandInteraction<CacheType>) {
+	await interaction.reply format compile interaction.options.getString("code")!, !!interaction.options.getBoolean "raw"
+}
+
+export {
+	data,
+	execute,
+}

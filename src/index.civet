@@ -1,14 +1,89 @@
-{ Client, Events, GatewayIntentBits } from discord.js
-{ config } from dotenv
+os from node:os
+{ spawn } from node:child_process
+
+{ Client, Events, REST, Routes } from discord.js
 { onMessage } from ./onMessage.civet
-config()
+config from ./config.civet
 
-client := new Client
-  intents: ['Guilds', 'GuildMessages', 'MessageContent']
+export client: Client | null .= null
 
-client.on Events.MessageCreate, onMessage
+export default async function start()
+	if client?
+		console.log "Restarting..."
+		client.destroy()
 
-client.once Events.ClientReady, (c) =>
-  console.log `Ready! Logged in as ${c.user.tag}`
+	client = new Client
+		intents: ['Guilds', 'GuildMessages', 'MessageContent']
 
-client.login process.env.DISCORD_TOKEN
+	client.on Events.MessageCreate, onMessage
+
+	client.once Events.ClientReady, (client) =>
+		console.log `Ready! Logged in as ${client.user.tag}.`
+
+	client.login config().token
+
+	commands := [
+		await import("./commands/ping.civet"),
+		await import("./commands/stats.civet"),
+		await import("./commands/compile.civet"),
+		await import("./commands/update.civet"),
+		await import("./commands/restart.civet"),
+	]
+
+	client.on Events.InteractionCreate, async (interaction) =>
+		unless interaction.isChatInputCommand() return
+
+		command := commands.find &.data.toJSON().name is interaction.commandName
+
+		unless command
+			console.error `No command matching ${interaction.commandName} was found.`
+			return
+
+		try
+			await command.execute interaction
+		catch error
+			console.error `Error executing ${interaction.commandName}`
+			console.error error
+		
+		return
+
+	const rest = new REST({ version: "10" }).setToken config().token
+
+	try
+		console.log `Started refreshing ${commands.length} application (/) commands.`
+
+		const data = await rest.put(
+			Routes.applicationCommands(config().clientID),
+			{ body: commands.map &.data.toJSON() },
+		) as any[]
+
+		console.log `Successfully reloaded ${data.length} application (/) commands.`
+	catch error
+		console.error error
+
+start()
+
+export function restart(detatched: boolean)
+	commandName := os.platform() is "win32" ? "pnpm.cmd" : "pnpm"
+
+	unless detatched
+		client?.destroy()
+
+	ls := spawn(commandName, ["run", "build-start"], {
+		detached: detatched
+	})
+
+	ls.stdout.on("data", (data) => {
+		console.log data.toString().trimEnd()
+	});
+
+	ls.stderr.on("data", (data) => {
+		console.error data.toString().trimEnd()
+	});
+
+	ls.on("close", (code) => {
+		console.log code
+	});
+
+	if detatched
+		process.exit()

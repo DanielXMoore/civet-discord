@@ -1,0 +1,52 @@
+* as prettier from prettier
+{ compile } from @danielx/civet
+
+type CompilerOutput = {
+	code: string;
+	error: string;
+}
+
+export default function (civetCode: string, raw: boolean): CompilerOutput
+	code .= ""
+	error .= ""
+
+	try
+		code = compile civetCode
+	catch e
+		error .= e as any
+		error =
+			"""
+				#{civetCode.split("\n")[0...error.line].join "\n"}
+				#{" ".repeat error.column - 1}^ #{error.name}
+			"""
+		return { code, error }
+
+	try
+		unless raw
+			code = prettier.format code, parser: "typescript"
+	catch e
+		error = (e as any).toString()
+	
+	{ code, error }
+
+export function format({ code, error }: CompilerOutput): string
+	formatted .= ""
+
+	if code.length > 0
+		formatted +=
+			"""
+				```tsx
+				#{code}
+				```
+			"""
+
+	if error.length > 0
+		formatted +=
+			"""
+				```tsx
+				#{error}
+				```
+			"""
+
+	formatted
+

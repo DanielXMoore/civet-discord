@@ -1,0 +1,22 @@
+{ SlashCommandBuilder, ChatInputCommandInteraction, CacheType, version as djsVersion } from discord.js
+{ version as civetVersion } from ../../node_modules/@danielx/civet/package.json
+{ version as prettierVersion } from prettier/package.json
+
+data := new SlashCommandBuilder()
+		.setName "stats"
+		.setDescription "Shows the current stats of the bot."
+
+async function execute(interaction: ChatInputCommandInteraction<CacheType>) {
+	await interaction.reply """
+		```
+		DiscordJS v#{djsVersion}
+		Civet v#{civetVersion}
+		Prettier v#{prettierVersion}
+		```
+	"""
+}
+
+export {
+	data,
+	execute,
+}
