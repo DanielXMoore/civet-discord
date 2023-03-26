@@ -29,4 +29,5 @@ pnpm := command 'pnpm', 'update', '--latest', '@danielx/civet'
 
 // If there was a change, reload bot with 0 downtime
 unless pnpm.stdout.includes 'Already up to date'
+  command 'pnpm', 'build'
   command 'pm2', 'reload', 'index'

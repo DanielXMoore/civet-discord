@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@danielx/civet': ^0.5.76
+  '@danielx/civet': ^0.5.90
   '@types/node': ^18.11.18
   '@types/prettier': ^2.7.2
   discord.js: ^14.7.1
@@ -10,7 +10,7 @@ specifiers:
   prettier: ^2.8.3
 
 dependencies:
-  '@danielx/civet': 0.5.76
+  '@danielx/civet': 0.5.90
   discord.js: 14.7.1
   dotenv: 16.0.3
   prettier: 2.8.3
@@ -22,8 +22,8 @@ devDependencies:
 
 packages:
 
-  /@danielx/civet/0.5.76:
-    resolution: {integrity: sha512-sppKaRzvx6gh9GK19K3sQRT/J1pn1sYR+CRTr57duJZmUVlYrtFPzgNst+KoKmTGAzFhC+QorVy1NdhZ45SVDw==}
+  /@danielx/civet/0.5.90:
+    resolution: {integrity: sha512-LAdlaFVGeZ0G7oiRxbJ7Sbj+l+/2Sdyk0F6iIQzZFOPb/51bE/aDOdFVaZvjfZQUb1OEMqCqs/halQ01rPgxdg==}
     engines: {node: '>=19 || ^18.6.0 || ^16.17.0'}
     hasBin: true
     dev: false
