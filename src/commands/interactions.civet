@@ -1,0 +1,22 @@
+type { APIApplicationCommandInteractionDataBasicOption, APIInteractionResponseChannelMessageWithSource, APIChatInputApplicationCommandInteraction, APIUser, RESTPostAPIInteractionCallbackJSONBody  } from @biscuitland/common;
+type { Session } from @biscuitland/core;
+type { RawFile } from @biscuitland/rest;
+{ InteractionResponseType } from @biscuitland/common;
+
+export class Interaction
+    token: string
+    id: string
+    user: APIUser
+    options: APIApplicationCommandInteractionDataBasicOption[];
+
+    @(data: APIChatInputApplicationCommandInteraction, readonly session: Session)
+        @token = data.token;
+        @id = data.id;
+        @user = data.user ? data.user : data.member!.user
+        @options = data.data.options as APIApplicationCommandInteractionDataBasicOption[] | undefined ?? [];
+
+    private reply(body: RESTPostAPIInteractionCallbackJSONBody, files?: RawFile[])
+        @session.api.interactions @id |> &(@token) |> .callback.post body: body, files: files
+
+    respond(data: APIInteractionResponseChannelMessageWithSource['data'])
+        @reply data: data, type: InteractionResponseType.ChannelMessageWithSource

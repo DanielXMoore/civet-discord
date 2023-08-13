@@ -3,10 +3,14 @@
   "compilerOptions": {
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "jsx": "react",
+    "target": "ES2015",
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "Node"
   },
   "ts-node": {
     "transpileOnly": true,

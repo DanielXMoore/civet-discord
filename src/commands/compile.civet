@@ -1,0 +1,39 @@
+{ ApplicationCommandOptionType, type APIApplicationCommandOption } from @biscuitland/common;
+{ compileCode, createSnippet } from ../utils.civet;
+type { Interaction } from ./interactions.civet;
+{ version as civetVersion } from ../../node_modules/@danielx/civet/package.json;
+
+command :=
+    name: 'compile'
+    description: 'Compile civet code'
+    options: [
+        type: ApplicationCommandOptionType.String
+        name: 'code'
+        description: 'Code to transpile'
+        required: true
+    ,
+        type: ApplicationCommandOptionType.Boolean
+        name: 'private'
+        description: 'Send the response as ephemeral'
+        required: false
+    ,
+        type: ApplicationCommandOptionType.Boolean
+        name: 'prettier'
+        description: 'Use prettier to lint the output'
+        required: false
+    ,
+        type: ApplicationCommandOptionType.Boolean
+        name: 'js'
+        description: 'JavaScript output'
+        required: false
+    ] as APIApplicationCommandOption[]
+    run: (interaction: Interaction) ->
+        code := interaction.options.find .name === 'code' |> (&!.value as string)
+        ephemeral := interaction.options.find .name === 'private' |> ($) => $ ? !!$.value : false
+        prettier := interaction.options.find .name === 'prettier' |> ($) => $ ? !!$.value : true
+        js := interaction.options.find .name === 'js' |> ($) => $ ? !!$.value : false
+        result := createSnippet await compileCode code, prettier, js
+
+        interaction.respond content: `↓↓↓ **${civetVersion}**`+result, flags: ephemeral ? 64 : 0
+
+export default command

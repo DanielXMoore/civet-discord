@@ -1,0 +1,6 @@
+type { GatewayEvents } from @biscuitland/ws;
+type { Session } from @biscuitland/core;
+
+export onMessageDelete := (session: Session, message: GatewayEvents['MESSAGE_DELETE']): void =>
+  session.messagesCache.delete message.id
+  

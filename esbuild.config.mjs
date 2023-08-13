@@ -1,5 +1,6 @@
 import esbuild from "esbuild";
 import civetPlugin from "@danielx/civet/esbuild-plugin";
+import packageJSON from "./package.json" assert {type: 'json'};
 
 esbuild
   .build({
@@ -8,7 +9,7 @@ esbuild
     platform: "node",
     outdir: "dist",
     target: "node18",
-    plugins: [civetPlugin],
-    external: ["dotenv", "@danielx/civet", "discord.js", "prettier"],
+    plugins: [{ setup: civetPlugin.setup, name: civetPlugin.name }],
+    external: Object.keys(packageJSON.dependencies),
   })
   .catch(() => process.exit(1));

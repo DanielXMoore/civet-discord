@@ -1,0 +1,76 @@
+type { Session } from @biscuitland/core;
+type { RawFile } from @biscuitland/rest;
+type { RESTPostAPIChannelMessageJSONBody } from @biscuitland/common;
+* as prettier from prettier
+{ compile } from @danielx/civet
+type { GatewayEvents } from @biscuitland/ws;
+{ version } from ../node_modules/@danielx/civet/package.json;
+
+sendMessage := (session: Session, id: string, body?: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) ->
+  session.api.channels id |> .messages.post body: body, files: files
+
+editMessage := (session: Session, channelId: string, id: string, body?: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) ->
+  session.api.channels channelId |> .messages id |> .patch body: body, files: files
+
+getRequestBody := async (message: GatewayEvents['MESSAGE_CREATE'] | GatewayEvents['MESSAGE_UPDATE']) ->
+  unless message.content return
+    body: null,
+    files: null
+  codes := [...message.content.matchAll /```(civet|coffee)-?(?<raw>raw)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
+  unless codes.length return
+    body: null,
+    files: null
+
+  transpiledCodes := for code of codes
+    compileCode code.groups!.code,  !code.groups!.raw, true |> await
+
+  files: RawFile[] := [];
+  body: RESTPostAPIChannelMessageJSONBody :=
+    content: `↓↓↓ **${version}**`,
+    message_reference:
+      message_id: message.id,
+      channel_id: message.channel_id,
+      guild_id: message.guild_id,
+      fail_if_not_exists: false
+
+  if transpiledCodes.reduce (acc, val) => acc + val.length + 8, 0 |> & + `↓↓↓ **${version}**`.length > 1500
+    files.push ...transpiledCodes[0...10].map ($, i) -> data: createSnippet($, false), name: `result${i}.ts`
+  else
+    body.content += transpiledCodes.map ($) => createSnippet $
+      .join '\n'
+
+  body: body
+  files: files
+
+export createSnippet := (output: string, md: boolean = true) =>
+  md ? """
+  ```jsx
+  #{output}
+  ```
+  """ : """
+  #{output}
+  """
+
+compileCode := (civetCode: string, usePrettier: boolean, js: boolean) ->
+  tsCode .= ''
+  prettierInfo .= ''
+
+  try
+    tsCode = compile civetCode, js: js
+  catch e
+    error := e as any
+    output := """
+      #{civetCode.split('\n')[0...error.line].join '\n'}
+      #{' '.repeat error.column - 1}^ #{error.name}
+    """
+    unless tsCode return output
+  
+  if usePrettier
+    try
+      tsCode = await prettier.format tsCode, parser: 'typescript'
+    catch
+      prettierInfo += 'Prettier failed! Fallback to the raw output.\n'
+
+  prettierInfo + tsCode
+
+export editMessage, sendMessage, compileCode, getRequestBody

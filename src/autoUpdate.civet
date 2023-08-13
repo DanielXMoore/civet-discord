@@ -9,7 +9,7 @@
 process from process
 path from path
 
-function command(command, ...args)
+function command(command: string, ...args: string[])
   console.log `> ${command} ${args.join ' '}`
   child := spawnSync command, args, encoding: 'utf8'
   if child.error
