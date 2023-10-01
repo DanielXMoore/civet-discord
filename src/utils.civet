@@ -44,9 +44,9 @@ getRequestBody := async (message: GatewayEvents['MESSAGE_CREATE'] | GatewayEvent
   body: body
   files: files
 
-export createSnippet := (output: string, md: boolean = true) =>
+export createSnippet := (output: string, md: boolean = true, language = 'tsx') =>
   md ? """
-  ```jsx
+  ```#{language}
   #{output}
   ```
   """ : """

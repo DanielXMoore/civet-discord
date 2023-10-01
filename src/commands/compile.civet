@@ -32,8 +32,9 @@ command :=
         ephemeral := interaction.options.find .name === 'private' |> ($) => $ ? !!$.value : false
         prettier := interaction.options.find .name === 'prettier' |> ($) => $ ? !!$.value : true
         js := interaction.options.find .name === 'js' |> ($) => $ ? !!$.value : false
+        given := createSnippet code, true, 'coffee'
         result := createSnippet await compileCode code, prettier, js
 
-        interaction.respond content: `↓↓↓ **${civetVersion}**`+result, flags: ephemeral ? 64 : 0
+        interaction.respond content: given+`↓↓↓ **${civetVersion}**`+result, flags: ephemeral ? 64 : 0
 
 export default command
