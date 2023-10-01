@@ -17,14 +17,14 @@ getRequestBody := async (message: GatewayEvents['MESSAGE_CREATE'] | GatewayEvent
     return
       body: null
       files: null
-  codes := [...message.content.matchAll /```(civet|coffee)-?(?<raw>raw)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
+  codes := [...message.content.matchAll /```(?<lang>civet|coffee)-?(?<raw>raw)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
   unless codes.length
     return
       body: null
       files: null
 
   transpiledCodes := for code of codes
-    compileCode code.groups!.code,  !code.groups!.raw, true |> await
+    compileCode code.groups!.code, !code.groups!.raw, false, code.groups!.lang == 'coffee' |> await
 
   files: RawFile[] := []
   body: RESTPostAPIChannelMessageJSONBody :=
@@ -53,9 +53,10 @@ export createSnippet := (output: string, md: boolean = true, language = 'tsx') =
   #{output}
   """
 
-compileCode := (civetCode: string, usePrettier: boolean, js: boolean) ->
+compileCode := (civetCode: string, usePrettier: boolean, js: boolean, coffee: boolean) ->
   tsCode .= ''
   prettierInfo .= ''
+  civetCode = '"civet coffeeCompat"\n' + civetCode if coffee
 
   try
     tsCode = compile civetCode, js: js
