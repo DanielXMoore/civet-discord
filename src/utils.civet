@@ -1,10 +1,10 @@
-type { Session } from @biscuitland/core;
-type { RawFile } from @biscuitland/rest;
-type { RESTPostAPIChannelMessageJSONBody } from @biscuitland/common;
+type { Session } from @biscuitland/core
+type { RawFile } from @biscuitland/rest
+type { RESTPostAPIChannelMessageJSONBody } from @biscuitland/common
 * as prettier from prettier
 { compile } from @danielx/civet
-type { GatewayEvents } from @biscuitland/ws;
-{ version } from ../node_modules/@danielx/civet/package.json;
+type { GatewayEvents } from @biscuitland/ws
+{ version } from ../node_modules/@danielx/civet/package.json
 
 sendMessage := (session: Session, id: string, body?: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) ->
   session.api.channels id |> .messages.post body: body, files: files
@@ -13,18 +13,20 @@ editMessage := (session: Session, channelId: string, id: string, body?: RESTPost
   session.api.channels channelId |> .messages id |> .patch body: body, files: files
 
 getRequestBody := async (message: GatewayEvents['MESSAGE_CREATE'] | GatewayEvents['MESSAGE_UPDATE']) ->
-  unless message.content return
-    body: null,
-    files: null
+  unless message.content
+    return
+      body: null
+      files: null
   codes := [...message.content.matchAll /```(civet|coffee)-?(?<raw>raw)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
-  unless codes.length return
-    body: null,
-    files: null
+  unless codes.length
+    return
+      body: null
+      files: null
 
   transpiledCodes := for code of codes
     compileCode code.groups!.code,  !code.groups!.raw, true |> await
 
-  files: RawFile[] := [];
+  files: RawFile[] := []
   body: RESTPostAPIChannelMessageJSONBody :=
     content: `↓↓↓ **${version}**`,
     message_reference:
@@ -63,7 +65,7 @@ compileCode := (civetCode: string, usePrettier: boolean, js: boolean) ->
       #{civetCode.split('\n')[0...error.line].join '\n'}
       #{' '.repeat error.column - 1}^ #{error.name}
     """
-    unless tsCode return output
+    return output unless tsCode
   
   if usePrettier
     try

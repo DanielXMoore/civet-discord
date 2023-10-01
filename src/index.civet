@@ -1,12 +1,12 @@
-{ Biscuit } from @biscuitland/core;
-{ GatewayIntentBits } from @biscuitland/common;
+{ Biscuit } from @biscuitland/core
+{ GatewayIntentBits } from @biscuitland/common
 { config } from dotenv
 { onMessage } from ./onMessage.civet
 { onMessageUpdate } from ./onMessageUpdate.civet
 { onMessageDelete } from ./onMessageDelete.civet
 { onMessageDeleteBulk } from ./onMessageDeleteBulk.civet
 { onInteractionCreate } from ./onInteractionCreate.civet
-compileCommand from ./commands/compile.civet;
+compileCommand from ./commands/compile.civet
 
 config()
 
@@ -25,14 +25,12 @@ client.messagesCache = new Map<string, string>
 client.once 'READY', (c) =>
   console.log `Ready! Logged in as ${c.user.username}#${c.user.discriminator}`
 
-publishCommands :=->
+publishCommands := ->
   client.api.applications client.applicationId |> .commands.put body: [compileCommand]
 
 client.start()
 publishCommands().then () -> console.log "Published"
 
-declare module "@biscuitland/core" {
-  export class Biscuit {
-    messagesCache: Map<string, string>;
-  }
-}
+declare module "@biscuitland/core"
+  export class Biscuit
+    messagesCache: Map<string, string>

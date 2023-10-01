@@ -1,7 +1,7 @@
-{ ApplicationCommandOptionType, type APIApplicationCommandOption } from @biscuitland/common;
-{ compileCode, createSnippet } from ../utils.civet;
-type { Interaction } from ./interactions.civet;
-{ version as civetVersion } from ../../node_modules/@danielx/civet/package.json;
+{ ApplicationCommandOptionType, type APIApplicationCommandOption } from @biscuitland/common
+{ compileCode, createSnippet } from ../utils.civet
+type { Interaction } from ./interactions.civet
+{ version as civetVersion } from ../../node_modules/@danielx/civet/package.json
 
 command :=
     name: 'compile'

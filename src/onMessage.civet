@@ -1,15 +1,14 @@
 { sendMessage, getRequestBody } from ./utils.civet
-type { GatewayEvents } from @biscuitland/ws;
-type { Session } from @biscuitland/core;
+type { GatewayEvents } from @biscuitland/ws
+type { Session } from @biscuitland/core
 
 export onMessage := (session: Session, message: GatewayEvents['MESSAGE_CREATE']): Promise<void> =>
-  unless !message.author.bot return
+  return if message.author.bot
 
-  { body, files } := await getRequestBody message;
-  unless files return
+  { body, files } := await getRequestBody message
+  return unless files
 
   messageBotId := await sendMessage session, message.channel_id, body, files |> .id
 
   session.messagesCache.set message.id, messageBotId
   return
-  

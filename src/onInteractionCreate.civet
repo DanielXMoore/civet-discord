@@ -1,8 +1,8 @@
 { Interaction } from ./commands/interactions.civet
-type { GatewayEvents } from @biscuitland/ws;
-type { Session } from @biscuitland/core;
+type { GatewayEvents } from @biscuitland/ws
+type { Session } from @biscuitland/core
 {  InteractionType, ApplicationCommandType, type APIChatInputApplicationCommandInteraction  } from @biscuitland/common
-compileCommand from ./commands/compile.civet;
+compileCommand from ./commands/compile.civet
 
 export onInteractionCreate := async (session: Session, rawInteraction: GatewayEvents['INTERACTION_CREATE']) =>
     switch rawInteraction.type
