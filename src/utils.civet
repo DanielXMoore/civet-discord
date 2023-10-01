@@ -17,14 +17,14 @@ getRequestBody := async (message: GatewayEvents['MESSAGE_CREATE'] | GatewayEvent
     return
       body: null
       files: null
-  codes := [...message.content.matchAll /```(?<lang>civet|coffee)-?(?<raw>raw)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
+  codes := [...message.content.matchAll /```(?<lang>civet|coffee)-?(?<raw>raw)?-?(?<js>js)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
   unless codes.length
     return
       body: null
       files: null
 
   transpiledCodes := for code of codes
-    compileCode code.groups!.code, !code.groups!.raw, false, code.groups!.lang == 'coffee' |> await
+    compileCode code.groups!.code, !code.groups!.raw, !!code.groups!.js, code.groups!.lang == 'coffee' |> await
 
   files: RawFile[] := []
   body: RESTPostAPIChannelMessageJSONBody :=
@@ -47,7 +47,7 @@ getRequestBody := async (message: GatewayEvents['MESSAGE_CREATE'] | GatewayEvent
 export createSnippet := (output: string, md: boolean = true, language = 'tsx') =>
   md ? """
   ```#{language}
-  #{output}
+  #{output or '// no output'}
   ```
   """ : """
   #{output}
