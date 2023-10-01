@@ -1,0 +1,63 @@
+type { Message, MessageCreateOptions, RawFile } from discord.js
+type { ClientWithCache } from ./index.civet
+* as prettier from prettier
+{ compile } from @danielx/civet
+{ version } from ../node_modules/@danielx/civet/package.json
+
+export transpileResponse := async (message: Message): Promise<MessageCreateOptions | undefined> ->
+  return unless message.content
+  codes := [...message.content.matchAll /```(?<lang>civet|coffee)-?(?<raw>raw)?-?(?<js>js)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
+  return unless codes.length
+
+  transpiledCodes := for code of codes
+    compileCode code.groups!.code, !code.groups!.raw, !!code.groups!.js, code.groups!.lang == 'coffee' |> await
+
+  reply: MessageCreateOptions :=
+    content: `↓↓↓ **${version}**`,
+    reply:
+      messageReference: message
+      failIfNotExists: false
+    allowedMentions:
+      repliedUser: false
+
+  if transpiledCodes.reduce (acc, val) => acc + val.length + 8, 0 |> & + `↓↓↓ **${version}**`.length > 1500
+    reply.files = for each code, i of transpiledCodes[0...10]
+      attachment: createSnippet(code, false)
+      name: `result${i}.ts`
+  else
+    reply.content += transpiledCodes.map ($) => createSnippet $
+      .join '\n'
+
+  reply
+
+export createSnippet := (output: string, md: boolean = true, language = 'tsx') =>
+  md ? """
+  ```#{language}
+  #{output or '// no output'}
+  ```
+  """ : """
+  #{output}
+  """
+
+export compileCode := (civetCode: string, usePrettier: boolean, js: boolean, coffee?: boolean) ->
+  tsCode .= ''
+  prettierInfo .= ''
+  civetCode = '"civet coffeeCompat"\n' + civetCode if coffee
+
+  try
+    tsCode = compile civetCode, js: js
+  catch e
+    error := e as any
+    output := """
+      #{civetCode.split('\n')[0...error.line].join '\n'}
+      #{' '.repeat error.column - 1}^ #{error.name}
+    """
+    return output unless tsCode
+  
+  if usePrettier
+    try
+      tsCode = await prettier.format tsCode, parser: 'typescript'
+    catch
+      prettierInfo += 'Prettier failed! Fallback to the raw output.\n'
+
+  prettierInfo + tsCode

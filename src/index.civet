@@ -1,5 +1,4 @@
-{ Biscuit } from @biscuitland/core
-{ GatewayIntentBits } from @biscuitland/common
+{ Client, Events, GatewayIntentBits, Message } from discord.js
 { config } from dotenv
 { onMessage } from ./onMessage.civet
 { onMessageUpdate } from ./onMessageUpdate.civet
@@ -10,27 +9,33 @@ compileCommand from ./commands/compile.civet
 
 config()
 
-client := new Biscuit
-  intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages | GatewayIntentBits.MessageContent
-  token: process.env.DISCORD_TOKEN!
+export interface ClientWithCache extends Client
+  messagesCache: Map<string, Message>
 
-client.on 'MESSAGE_CREATE', (data) => onMessage client, data
-client.on 'MESSAGE_UPDATE', (data) => onMessageUpdate client, data
-client.on 'MESSAGE_DELETE', (data) => onMessageDelete client, data
-client.on 'MESSAGE_DELETE_BULK', (data) => onMessageDeleteBulk client, data
-client.on 'INTERACTION_CREATE', (data) => onInteractionCreate client, data
+client := new Client
+  intents: [
+    GatewayIntentBits.Guilds
+    GatewayIntentBits.GuildMessages
+    GatewayIntentBits.MessageContent
+  ]
 
-client.messagesCache = new Map<string, string>
+client.on Events.MessageCreate, onMessage
+client.on Events.MessageUpdate, onMessageUpdate
+client.on Events.MessageDelete, onMessageDelete
+client.on Events.MessageBulkDelete, onMessageDeleteBulk
+client.on Events.InteractionCreate, onInteractionCreate
 
-client.once 'READY', (c) =>
-  console.log `Ready! Logged in as ${c.user.username}#${c.user.discriminator}`
+(client as ClientWithCache).messagesCache = new Map
+
+client.once Events.ClientReady, (c) =>
+  console.log `Ready! Logged in as ${c.user.tag}`
+  publishCommands().then => console.log "Published commands"
 
 publishCommands := ->
-  client.api.applications client.applicationId |> .commands.put body: [compileCommand]
+  client.application!.commands.set [compileCommand.data]
 
-client.start()
-publishCommands().then () -> console.log "Published"
-
-declare module "@biscuitland/core"
-  export class Biscuit
-    messagesCache: Map<string, string>
+if process.env.discord_token
+  client.login process.env.discord_token
+else
+  console.log 'Set DISCORD_TOKEN environment variable to bot token.'
+  process.exit 1

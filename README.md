@@ -14,8 +14,13 @@ with languages of
 * ```` ```civet-js ```` or ```` ```coffee-js ````: Ask Civet to convert to JavaScript instead of TypeScript.
 * ```` ```civet-raw-js ```` or ```` ```coffee-raw-js ````: Ask Civet to convert to JavaScript instead of TypeScript, and don't run Prettier.
 
-You can include multiple code blocks, and you can edit your messages after
-initial sending, and the bot will update accordingly.
+You can include multiple code blocks.  If the total output size is large,
+it will switch from inlined code to file attachments.
+
+You can edit your messages after initial sending, and the bot its response.
+If you delete a message or edit it to remove all relevant code blocks,
+the bot will delete its response
+(and will no longer consider edits to that message).
 
 In addition, you can use the `/civet` slash command to transpile Civet code,
 with similar options.  If you set the `private` option to True, you will get a

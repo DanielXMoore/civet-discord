@@ -1,5 +1,8 @@
-type { GatewayEvents } from @biscuitland/ws
-type { Session } from @biscuitland/core
+type { Collection, Message, PartialMessage } from discord.js
+type { ClientWithCache } from ./index.civet
 
-export onMessageDeleteBulk := (session: Session, message: GatewayEvents['MESSAGE_DELETE_BULK']): void =>
-  (session.messagesCache.delete key if message.ids.some ($) => $ === key || $ === value) for [key, value] of session.messagesCache
+export onMessageDeleteBulk := (messages: Collection<string, Message<boolean> | PartialMessage>): Promise<void> =>
+  for [, message] of messages
+    cache := (message.client as ClientWithCache).messagesCache
+    await cache.get(message.id)?.delete()
+    cache.delete message.id

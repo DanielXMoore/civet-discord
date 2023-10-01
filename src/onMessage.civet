@@ -1,14 +1,11 @@
-{ sendMessage, getRequestBody } from ./utils.civet
-type { GatewayEvents } from @biscuitland/ws
-type { Session } from @biscuitland/core
+{ transpileResponse } from ./transpile.civet
+type { Message, PartialMessage } from discord.js
+type { ClientWithCache } from ./index.civet
 
-export onMessage := (session: Session, message: GatewayEvents['MESSAGE_CREATE']): Promise<void> =>
+export onMessage := (message: Message): Promise<void> =>
   return if message.author.bot
 
-  { body, files } := await getRequestBody message
-  return unless files
-
-  messageBotId := await sendMessage session, message.channel_id, body, files |> .id
-
-  session.messagesCache.set message.id, messageBotId
-  return
+  response := await transpileResponse message
+  return unless response
+  botMessage := await message.channel.send response
+  (message.client as ClientWithCache).messagesCache.set message.id, botMessage

@@ -12,11 +12,8 @@
   "author": "Adrian Wieprzkowicz <adrian.wieprzkowicz@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@biscuitland/common": "^0.0.8",
-    "@biscuitland/core": "^3.0.9",
-    "@biscuitland/rest": "^3.0.6",
-    "@biscuitland/ws": "^3.0.9",
     "@danielx/civet": "^0.6.41",
+    "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
     "prettier": "^3.0.1"
   },

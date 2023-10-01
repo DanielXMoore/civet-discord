@@ -1,40 +1,42 @@
-{ ApplicationCommandOptionType, type APIApplicationCommandOption } from @biscuitland/common
-{ compileCode, createSnippet } from ../utils.civet
+{ ChatInputCommandInteraction, SlashCommandBuilder } from discord.js
+{ compileCode, createSnippet } from ../transpile.civet
 type { Interaction } from ./interactions.civet
 { version as civetVersion } from ../../node_modules/@danielx/civet/package.json
 
-command :=
-    name: 'compile'
-    description: 'Compile civet code'
-    options: [
-        type: ApplicationCommandOptionType.String
-        name: 'code'
-        description: 'Code to transpile'
-        required: true
-    ,
-        type: ApplicationCommandOptionType.Boolean
-        name: 'private'
-        description: 'Send the response as ephemeral'
-        required: false
-    ,
-        type: ApplicationCommandOptionType.Boolean
-        name: 'prettier'
-        description: 'Use prettier to lint the output'
-        required: false
-    ,
-        type: ApplicationCommandOptionType.Boolean
-        name: 'js'
-        description: 'JavaScript output'
-        required: false
-    ] as APIApplicationCommandOption[]
-    run: (interaction: Interaction) ->
-        code := interaction.options.find .name === 'code' |> (&!.value as string)
-        ephemeral := interaction.options.find .name === 'private' |> ($) => $ ? !!$.value : false
-        prettier := interaction.options.find .name === 'prettier' |> ($) => $ ? !!$.value : true
-        js := interaction.options.find .name === 'js' |> ($) => $ ? !!$.value : false
-        given := createSnippet code, true, 'coffee'
-        result := createSnippet await compileCode code, prettier, js
+data := new SlashCommandBuilder()
+  .setName 'compile'
+  .setDescription 'Compile civet code'
+  .addStringOption (option) =>
+    option
+    .setName 'code'
+    .setDescription 'Civet code to transpile'
+    .setRequired true
+  .addBooleanOption (option) =>
+    option
+    .setName 'private'
+    .setDescription 'Send the response as ephemeral'
+    .setRequired false
+  .addBooleanOption (option) =>
+    option
+    .setName 'prettier'
+    .setDescription 'Use prettier to lint the output'
+    .setRequired false
+  .addBooleanOption (option) =>
+    option
+    .setName 'js'
+    .setDescription 'JavaScript output'
+    .setRequired false
 
-        interaction.respond content: given+`↓↓↓ **${civetVersion}**`+result, flags: ephemeral ? 64 : 0
+execute := (interaction: ChatInputCommandInteraction) ->
+  code := interaction.options.getString 'code', true
+  ephemeral := interaction.options.getBoolean('private') ?? false
+  prettier := interaction.options.getBoolean('prettier') ?? true
+  js := interaction.options.getBoolean('js') ?? false
+  given := createSnippet code, true, 'coffee'
+  result := createSnippet await compileCode code, prettier, js
 
-export default command
+  interaction.reply
+    content: given+`↓↓↓ **${civetVersion}**`+result
+    ephemeral: ephemeral
+
+export default {data, execute}

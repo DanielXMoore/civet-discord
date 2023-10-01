@@ -1,15 +1,13 @@
-{ deleteMessage, editMessage, getRequestBody } from ./utils.civet
-type { GatewayEvents } from @biscuitland/ws
-type { Session } from @biscuitland/core
+{ transpileResponse } from ./transpile.civet
+type { Message, MessageEditOptions, PartialMessage } from discord.js
+type { ClientWithCache } from ./index.civet
 
-export onMessageUpdate := (session: Session, message: GatewayEvents['MESSAGE_UPDATE']): Promise<void> =>
+export onMessageUpdate := (oldMessage: Message | PartialMessage, message: Message | PartialMessage): Promise<void> =>
   return unless message.content
-  { body, files } := await getRequestBody message
-  messageBotId := session.messagesCache.get message.id
-  return unless messageBotId
-  unless body
-    await deleteMessage session, message.channel_id, messageBotId
-    session.messagesCache.delete message.id
+  botMessage := (message.client as ClientWithCache).messagesCache.get message.id
+  return unless botMessage
+  response := await transpileResponse message as Message
+  unless response
+    await botMessage.delete()
     return
-  return unless files
-  await editMessage session, message.channel_id, messageBotId, {...body, attachments: []}, files
+  await botMessage.edit response as MessageEditOptions

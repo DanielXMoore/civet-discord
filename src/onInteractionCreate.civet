@@ -1,14 +1,8 @@
-{ Interaction } from ./commands/interactions.civet
-type { GatewayEvents } from @biscuitland/ws
-type { Session } from @biscuitland/core
-{  InteractionType, ApplicationCommandType, type APIChatInputApplicationCommandInteraction  } from @biscuitland/common
+{ BaseInteraction } from discord.js
 compileCommand from ./commands/compile.civet
 
-export onInteractionCreate := async (session: Session, rawInteraction: GatewayEvents['INTERACTION_CREATE']) =>
-    switch rawInteraction.type
-        case InteractionType.ApplicationCommand:
-            switch rawInteraction.data.type
-                case ApplicationCommandType.ChatInput:
-                    interaction := new Interaction rawInteraction as APIChatInputApplicationCommandInteraction, session
-                    if rawInteraction.data.name === 'compile'
-                        await compileCommand.run(interaction)
+export onInteractionCreate := async (interaction: BaseInteraction) =>
+  return unless interaction.isChatInputCommand()
+  switch interaction.commandName
+    when 'compile'
+      await compileCommand.execute interaction
