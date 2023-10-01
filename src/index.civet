@@ -34,8 +34,8 @@ client.once Events.ClientReady, (c) =>
 publishCommands := ->
   client.application!.commands.set [compileCommand.data]
 
-if process.env.discord_token
-  client.login process.env.discord_token
+if token := process.env['DISCORD_TOKEN']
+  client.login token
 else
   console.log 'Set DISCORD_TOKEN environment variable to bot token.'
   process.exit 1
