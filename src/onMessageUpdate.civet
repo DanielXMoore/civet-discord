@@ -9,6 +9,7 @@ export onMessageUpdate := (session: Session, message: GatewayEvents['MESSAGE_UPD
   return unless messageBotId
   unless body
     await deleteMessage session, message.channel_id, messageBotId
+    session.messagesCache.delete message.id
     return
   return unless files
   await editMessage session, message.channel_id, messageBotId, {...body, attachments: []}, files
