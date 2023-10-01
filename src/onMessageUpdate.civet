@@ -1,0 +1,11 @@
+{ editMessage, getRequestBody } from ./utils.civet
+type { GatewayEvents } from @biscuitland/ws
+type { Session } from @biscuitland/core
+
+export onMessageUpdate := (session: Session, message: GatewayEvents['MESSAGE_UPDATE']): Promise<void> =>
+  return unless message.content
+  { body, files } := await getRequestBody message
+  messageBotId := session.messagesCache.get message.id
+  return unless messageBotId
+  return unless files
+  await editMessage session, message.channel_id, messageBotId, {...body, attachments: []}, files

@@ -1,14 +1,36 @@
-{ Client, Events, GatewayIntentBits } from discord.js
+{ Biscuit } from @biscuitland/core
+{ GatewayIntentBits } from @biscuitland/common
 { config } from dotenv
 { onMessage } from ./onMessage.civet
+{ onMessageUpdate } from ./onMessageUpdate.civet
+{ onMessageDelete } from ./onMessageDelete.civet
+{ onMessageDeleteBulk } from ./onMessageDeleteBulk.civet
+{ onInteractionCreate } from ./onInteractionCreate.civet
+compileCommand from ./commands/compile.civet
+
 config()
 
-client := new Client
-  intents: ['Guilds', 'GuildMessages', 'MessageContent']
+client := new Biscuit
+  intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages | GatewayIntentBits.MessageContent
+  token: process.env.DISCORD_TOKEN!
 
-client.on Events.MessageCreate, onMessage
+client.on 'MESSAGE_CREATE', (data) => onMessage client, data
+client.on 'MESSAGE_UPDATE', (data) => onMessageUpdate client, data
+client.on 'MESSAGE_DELETE', (data) => onMessageDelete client, data
+client.on 'MESSAGE_DELETE_BULK', (data) => onMessageDeleteBulk client, data
+client.on 'INTERACTION_CREATE', (data) => onInteractionCreate client, data
 
-client.once Events.ClientReady, (c) =>
-  console.log `Ready! Logged in as ${c.user.tag}`
+client.messagesCache = new Map<string, string>
 
-client.login process.env.DISCORD_TOKEN
+client.once 'READY', (c) =>
+  console.log `Ready! Logged in as ${c.user.username}#${c.user.discriminator}`
+
+publishCommands := ->
+  client.api.applications client.applicationId |> .commands.put body: [compileCommand]
+
+client.start()
+publishCommands().then () -> console.log "Published"
+
+declare module "@biscuitland/core"
+  export class Biscuit
+    messagesCache: Map<string, string>

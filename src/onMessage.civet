@@ -1,35 +1,14 @@
-* as prettier from prettier
-{ Message } from discord.js
-{ compile } from @danielx/civet
-{ createSnippet } from ./createSnippet.civet
+{ sendMessage, getRequestBody } from ./utils.civet
+type { GatewayEvents } from @biscuitland/ws
+type { Session } from @biscuitland/core
 
-export onMessage := (msg: Message) =>
-  match := msg.content.match /``` ?(civet|coffee)-?(?<raw>raw)?.*?\n(?<code>(?:.|\n)*?)\n```/m
-  unless match return
+export onMessage := (session: Session, message: GatewayEvents['MESSAGE_CREATE']): Promise<void> =>
+  return if message.author.bot
 
-  usePrettier := !match.groups!.raw
-  civetCode := match.groups!.code
-  tsCode .= ''
-  prettierInfo .= ''
+  { body, files } := await getRequestBody message
+  return unless files
 
-  try
-    tsCode = compile civetCode
-  catch e
-    error := e as any
-    input := civetCode
-    output := """
-      #{civetCode.split('\n')[0...error.line].join '\n'}
-      #{' '.repeat error.column - 1}^ #{error.name}
-    """
-    msg.channel.send createSnippet input, output
-  
-  unless tsCode return
+  messageBotId := await sendMessage session, message.channel_id, body, files |> .id
 
-  if usePrettier
-    try
-      tsCode = prettier.format tsCode, parser: 'typescript'
-    catch
-      prettierInfo += 'Prettier failed! Fallback to the raw output.\n'
-
-  msg.channel.send prettierInfo + createSnippet civetCode, tsCode
+  session.messagesCache.set message.id, messageBotId
   return

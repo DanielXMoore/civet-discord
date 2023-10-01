@@ -5,20 +5,23 @@
   "main": "index.js",
   "scripts": {
     "build": "node esbuild.config.mjs",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "update": "node dist/autoUpdate.js"
   },
   "keywords": [],
   "author": "Adrian Wieprzkowicz <adrian.wieprzkowicz@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@danielx/civet": "^0.5.76",
-    "discord.js": "^14.7.1",
-    "dotenv": "^16.0.3",
-    "prettier": "^2.8.3"
+    "@biscuitland/common": "^0.0.8",
+    "@biscuitland/core": "^3.0.9",
+    "@biscuitland/rest": "^3.0.6",
+    "@biscuitland/ws": "^3.0.9",
+    "@danielx/civet": "^0.6.18",
+    "dotenv": "^16.3.1",
+    "prettier": "^3.0.1"
   },
   "devDependencies": {
-    "@types/node": "^18.11.18",
-    "@types/prettier": "^2.7.2",
-    "esbuild": "^0.16.17"
+    "@types/node": "^20.4.7",
+    "esbuild": "^0.18.17"
   }
 }

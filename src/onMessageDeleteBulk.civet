@@ -1,0 +1,5 @@
+type { GatewayEvents } from @biscuitland/ws
+type { Session } from @biscuitland/core
+
+export onMessageDeleteBulk := (session: Session, message: GatewayEvents['MESSAGE_DELETE_BULK']): void =>
+  (session.messagesCache.delete key if message.ids.some ($) => $ === key || $ === value) for [key, value] of session.messagesCache
