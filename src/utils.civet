@@ -12,6 +12,9 @@ sendMessage := (session: Session, id: string, body?: RESTPostAPIChannelMessageJS
 editMessage := (session: Session, channelId: string, id: string, body?: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) ->
   session.api.channels channelId |> .messages id |> .patch body: body, files: files
 
+deleteMessage := (session: Session, channelId: string, id: string) ->
+  session.api.channels channelId |> .messages id |> .delete()
+
 getRequestBody := async (message: GatewayEvents['MESSAGE_CREATE'] | GatewayEvents['MESSAGE_UPDATE']) ->
   unless message.content
     return
@@ -34,6 +37,8 @@ getRequestBody := async (message: GatewayEvents['MESSAGE_CREATE'] | GatewayEvent
       channel_id: message.channel_id,
       guild_id: message.guild_id,
       fail_if_not_exists: false
+    allowed_mentions:
+      replied_user: false
 
   if transpiledCodes.reduce (acc, val) => acc + val.length + 8, 0 |> & + `↓↓↓ **${version}**`.length > 1500
     files.push ...transpiledCodes[0...10].map ($, i) -> data: createSnippet($, false), name: `result${i}.ts`
@@ -76,4 +81,4 @@ compileCode := (civetCode: string, usePrettier: boolean, js: boolean, coffee: bo
 
   prettierInfo + tsCode
 
-export editMessage, sendMessage, compileCode, getRequestBody
+export editMessage, sendMessage, compileCode, getRequestBody, deleteMessage
