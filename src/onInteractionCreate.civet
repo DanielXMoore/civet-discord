@@ -1,7 +1,7 @@
-{ BaseInteraction } from discord.js
+{ Interaction } from discord.js
 compileCommand from ./commands/compile.civet
 
-export onInteractionCreate := async (interaction: BaseInteraction) =>
+export onInteractionCreate := async (interaction: Interaction): Promise<void> =>
   return unless interaction.isChatInputCommand()
   switch interaction.commandName
     when 'compile'
