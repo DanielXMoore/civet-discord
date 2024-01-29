@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@danielx/civet':
-    specifier: ^0.6.50
-    version: 0.6.50(typescript@5.2.2)
+    specifier: ^0.6.64
+    version: 0.6.64(typescript@5.2.2)
   discord.js:
     specifier: ^14.13.0
     version: 14.13.0
@@ -35,8 +35,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.9
     dev: false
 
-  /@danielx/civet@0.6.50(typescript@5.2.2):
-    resolution: {integrity: sha512-fyBnC7BggqLLuACNCs36wRCJYoh2igUzus7FoPJWSg1YmCfmQib/4TThJlvBT7QfGPT2rtSIH7qPDSZRdMEAOA==}
+  /@danielx/civet@0.6.64(typescript@5.2.2):
+    resolution: {integrity: sha512-0rvEAQx2lshFOvL/+iPcz0Bo3Qt+zvXNAH13oRValnzgcSLT8YfcJqjMZAEZ8/NjTya+q38sMsQciWgXJG1bYA==}
     engines: {node: '>=19 || ^18.6.0 || ^16.17.0'}
     hasBin: true
     peerDependencies:
@@ -45,7 +45,7 @@ packages:
       '@cspotcode/source-map-support': 0.8.1
       '@typescript/vfs': 1.5.0
       typescript: 5.2.2
-      unplugin: 1.5.0
+      unplugin: 1.6.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -611,13 +611,13 @@ packages:
       busboy: 1.6.0
     dev: false
 
-  /unplugin@1.5.0:
-    resolution: {integrity: sha512-9ZdRwbh/4gcm1JTOkp9lAkIDrtOyOxgHmY7cjuwI8L/2RTikMcVG25GsZwNAgRuap3iDw2jeq7eoqtAsz5rW3A==}
+  /unplugin@1.6.0:
+    resolution: {integrity: sha512-BfJEpWBu3aE/AyHx8VaNE/WgouoQxgH9baAiH82JjX8cqVyi3uJQstqwD5J+SZxIK326SZIhsSZlALXVBCknTQ==}
     dependencies:
       acorn: 8.11.2
       chokidar: 3.5.3
       webpack-sources: 3.2.3
-      webpack-virtual-modules: 0.5.0
+      webpack-virtual-modules: 0.6.1
     dev: false
 
   /webpack-sources@3.2.3:
@@ -625,8 +625,8 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: false
 
-  /webpack-virtual-modules@0.5.0:
-    resolution: {integrity: sha512-kyDivFZ7ZM0BVOUteVbDFhlRt7Ah/CSPwJdi8hBpkK7QLumUqdLtVfm/PX/hkcnrvr0i77fO5+TjZ94Pe+C9iw==}
+  /webpack-virtual-modules@0.6.1:
+    resolution: {integrity: sha512-poXpCylU7ExuvZK8z+On3kX+S8o/2dQ/SVYueKA0D4WEMXROXgY8Ez50/bQEUmvoSMMrWcrJqCHuhAbsiwg7Dg==}
     dev: false
 
   /ws@8.14.2:

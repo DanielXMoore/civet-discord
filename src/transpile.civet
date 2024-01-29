@@ -4,6 +4,10 @@ type { ClientWithCache } from ./index.civet
 { compile } from @danielx/civet
 { version } from ../node_modules/@danielx/civet/package.json
 
+export interface Transpiled
+  code: string
+  error?: string
+
 export transpileResponse := async (message: Message): Promise<MessageCreateOptions | undefined> ->
   return unless message.content
   codes := [...message.content.matchAll /```(?<lang>civet|coffee)-?(?<raw>raw)?-?(?<js>js)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
@@ -20,7 +24,7 @@ export transpileResponse := async (message: Message): Promise<MessageCreateOptio
     allowedMentions:
       repliedUser: false
 
-  if transpiledCodes.reduce (acc, val) => acc + val.length + 8, 0 |> & + `↓↓↓ **${version}**`.length > 1500
+  if transpiledCodes.reduce (acc, val) => acc + val.code.length + 8, 0 |> & + `↓↓↓ **${version}**`.length > 1500
     reply.files = for each code, i of transpiledCodes[0...10]
       attachment: createSnippet(code, false)
       name: `result${i}.ts`
@@ -30,34 +34,38 @@ export transpileResponse := async (message: Message): Promise<MessageCreateOptio
 
   reply
 
-export createSnippet := (output: string, md: boolean = true, language = 'tsx') =>
+export createSnippet := (transpiled: Transpiled, md: boolean = true, language = 'tsx') =>
+  { error, code } .= transpiled
+  if error
+    error = ` — *${error}*\n`
+  else
+    error = ''
   md ? """
-  ```#{language}
-  #{output or '// no output'}
+  #{error}```#{language}
+  #{code or '// no output'}
   ```
   """ : """
-  #{output}
+  #{error}#{code}
   """
 
-export compileCode := (civetCode: string, usePrettier: boolean, js: boolean, coffee?: boolean) ->
-  tsCode .= ''
-  prettierInfo .= ''
+export compileCode := (civetCode: string, usePrettier: boolean, js: boolean, coffee?: boolean): Promise<Transpiled> ->
+  code .= ''
   civetCode = '"civet coffeeCompat"\n' + civetCode if coffee
 
   try
-    tsCode = compile civetCode, js: js
+    code = compile civetCode, js: js
   catch e
     error := e as any
     output := """
       #{civetCode.split('\n')[0...error.line].join '\n'}
       #{' '.repeat error.column - 1}^ #{error.name}
     """
-    return output unless tsCode
+    return {code} unless code
   
   if usePrettier
     try
-      tsCode = await prettier.format tsCode, parser: 'typescript'
+      code = await prettier.format code, parser: 'typescript'
     catch
-      prettierInfo += 'Prettier failed! Fallback to the raw output.\n'
+      return { code, error: 'Prettier failed! Fallback to raw output.' }
 
-  prettierInfo + tsCode
+  { code }
