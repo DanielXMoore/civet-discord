@@ -56,11 +56,11 @@ export compileCode := (civetCode: string, usePrettier: boolean, js: boolean, cof
     code = compile civetCode, js: js
   catch e
     error := e as any
-    output := """
+    code = """
       #{civetCode.split('\n')[0...error.line].join '\n'}
       #{' '.repeat error.column - 1}^ #{error.name}
     """
-    return {code} unless code
+    return {code, error: 'Transpilation failed!'}
   
   if usePrettier
     try
