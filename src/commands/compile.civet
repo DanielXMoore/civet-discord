@@ -1,6 +1,5 @@
 { ChatInputCommandInteraction, SlashCommandBuilder } from discord.js
 { compileCode, createSnippet } from ../transpile.civet
-type { Interaction } from ./interactions.civet
 { version as civetVersion } from ../../node_modules/@danielx/civet/package.json
 
 data := new SlashCommandBuilder()
@@ -32,7 +31,7 @@ execute := (interaction: ChatInputCommandInteraction) ->
   ephemeral := interaction.options.getBoolean('private') ?? false
   prettier := interaction.options.getBoolean('prettier') ?? true
   js := interaction.options.getBoolean('js') ?? false
-  given := createSnippet code, true, 'coffee'
+  given := createSnippet { code }, true, 'coffee'
   result := createSnippet await compileCode code, prettier, js
 
   interaction.reply
