@@ -53,7 +53,9 @@ export compileCode := (civetCode: string, usePrettier: boolean, js: boolean, cof
   civetCode = '"civet coffeeCompat"\n' + civetCode if coffee
 
   try
-    code = await compile civetCode, js: js
+    code = await compile civetCode,
+      js: js
+      comptime: false  // disable comptime for security
   catch e
     error := e as any
     code = """
