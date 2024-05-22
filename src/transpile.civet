@@ -1,7 +1,7 @@
 type { Message, MessageCreateOptions, RawFile } from discord.js
 type { ClientWithCache } from ./index.civet
 * as prettier from prettier
-{ compile } from @danielx/civet
+{ compile, isCompileError, type ParseErrors } from @danielx/civet
 { version } from ../node_modules/@danielx/civet/package.json
 
 export interface Transpiled
@@ -56,13 +56,20 @@ export compileCode := (civetCode: string, usePrettier: boolean, js: boolean, cof
     code = await compile civetCode,
       js: js
       comptime: false  // disable comptime for security
-  catch e
-    error := e as any
-    code = """
-      #{civetCode.split('\n')[0...error.line].join '\n'}
-      #{' '.repeat error.column - 1}^ #{error.name}
-    """
-    return {code, error: 'Transpilation failed!'}
+  catch error
+    if isCompileError error // ParseError or ParseErrors
+      // Unwrap ParseErrors to first error
+      if (error as ParseErrors).errors?
+        error = (error as ParseErrors).errors[0]
+      code = """
+        #{civetCode.split('\n')[0...error.line].join '\n'}
+        #{' '.repeat error.column - 1}^ #{error.header}
+      """
+      return {code, error: "Transpilation failed!"}
+    else // unknown Error
+      return
+        code: `${(error as Error).name}: ${(error as Error).message}`
+        error: "Transpilation failed!"
   
   if usePrettier
     try
