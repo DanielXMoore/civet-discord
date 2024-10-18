@@ -5,52 +5,62 @@ type { ClientWithCache } from ./index.civet
 { version } from ../node_modules/@danielx/civet/package.json
 
 export interface Transpiled
+  about: string
   code: string
   error?: string
 
 export transpileResponse := async (message: Message): Promise<MessageCreateOptions | undefined> ->
   return unless message.content
-  codes := [...message.content.matchAll /```(?<lang>civet|coffee)-?(?<raw>raw)?-?(?<js>js)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
-  return unless codes.length
+  inputs := [...message.content.matchAll /```(?<lang>civet|coffee)-?(?<raw>raw)?-?(?<js>js)?.*?\n(?<code>(?:.|\n)*?)\n```/mg]
+  return unless inputs#
 
-  transpiledCodes := for code of codes
-    compileCode code.groups!.code, !code.groups!.raw, !!code.groups!.js, code.groups!.lang == 'coffee' |> await
+  transpileds := for input of inputs
+    {code, raw, js, lang} := input.groups!
+    prettier := !raw
+    coffee := lang is 'coffee'
+    compileCode code, prettier, !!js, coffee |> await
 
   reply: MessageCreateOptions :=
-    content: `↓↓↓ **${version}**`,
+    content: '' // added to below
     reply:
       messageReference: message
       failIfNotExists: false
     allowedMentions:
       repliedUser: false
 
-  if transpiledCodes.reduce (acc, val) => acc + val.code.length + 8, 0 |> & + `↓↓↓ **${version}**`.length > 1500
-    reply.files = for each code, i of transpiledCodes[0...10]
-      attachment: createSnippet(code, false)
+  if transpileds.map(&.about# + &.code#).reduce((+)) > 1500
+    reply.files = for each transpiled, i of transpileds[0...10]
+      attachment: createSnippet transpiled, false
       name: `result${i}.ts`
   else
-    reply.content += transpiledCodes.map ($) => createSnippet $
-      .join '\n'
+    for transpiled of transpileds
+      reply.content += createSnippet(transpiled) + '\n'
+    reply.content = reply.content![...-1] // remove final \n
 
   reply
 
 export createSnippet := (transpiled: Transpiled, md: boolean = true, language = 'tsx') =>
-  { error, code } .= transpiled
-  if error
-    error = ` — *${error}*\n`
-  else
-    error = ''
+  { about, error, code } .= transpiled
+  preamble .= about
+  preamble += ` — *${error}*` if error
+  preamble += '\n' if preamble
   md ? """
-  #{error}```#{language}
+  #{preamble}```#{language}
   #{code or '// no output'}
   ```
   """ : """
-  #{error}#{code}
+  #{preamble}#{code}
   """
 
 export compileCode := (civetCode: string, usePrettier: boolean, js: boolean, coffee?: boolean): Promise<Transpiled> ->
   code .= ''
   civetCode = '"civet coffeeCompat"\n' + civetCode if coffee
+
+  about .= version
+  about += ' Coffee' if coffee
+  about += ' raw' unless usePrettier
+  about += ' JS' if js
+  about = `↓↓↓ **${about}**`
 
   try
     code = await compile civetCode,
@@ -65,16 +75,18 @@ export compileCode := (civetCode: string, usePrettier: boolean, js: boolean, cof
         #{civetCode.split('\n')[0...error.line].join '\n'}
         #{' '.repeat error.column - 1}^ #{error.header}
       """
-      return {code, error: "Transpilation failed!"}
+      return {about, code, error: "Transpilation failed!"}
     else // unknown Error
-      return
+      return {
+        about
         code: `${(error as Error).name}: ${(error as Error).message}`
         error: "Transpilation failed!"
+      }
   
   if usePrettier
     try
       code = await prettier.format code, parser: 'typescript'
     catch
-      return { code, error: 'Prettier failed! Fallback to raw output.' }
+      return { about, code, error: 'Prettier failed! Fallback to raw output.' }
 
-  { code }
+  { about, code }

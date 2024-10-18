@@ -25,17 +25,23 @@ data := new SlashCommandBuilder()
     .setName 'js'
     .setDescription 'JavaScript output'
     .setRequired false
+  .addBooleanOption (option) =>
+    option
+    .setName 'coffee'
+    .setDescription 'Turn on CoffeeScript compatibility'
+    .setRequired false
 
 execute := (interaction: ChatInputCommandInteraction) ->
   code := interaction.options.getString 'code', true
   ephemeral := interaction.options.getBoolean('private') ?? false
   prettier := interaction.options.getBoolean('prettier') ?? true
   js := interaction.options.getBoolean('js') ?? false
-  given := createSnippet { code }, true, 'coffee'
-  result := createSnippet await compileCode code, prettier, js
+  coffee := interaction.options.getBoolean('coffee') ?? false
+  given := createSnippet { about: '', code }, true, 'coffee'
+  result := createSnippet await compileCode code, prettier, js, coffee
 
   interaction.reply
-    content: given+`↓↓↓ **${civetVersion}**`+result
+    content: given + result
     ephemeral: ephemeral
 
 export default {data, execute}

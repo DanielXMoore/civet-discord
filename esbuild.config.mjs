@@ -1,6 +1,6 @@
 import esbuild from "esbuild"
 import civetPlugin from "@danielx/civet/esbuild-plugin"
-import packageJSON from "./package.json" assert {type: 'json'}
+import packageJSON from "./package.json" with {type: 'json'}
 
 esbuild
   .build({
