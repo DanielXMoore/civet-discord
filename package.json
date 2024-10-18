@@ -12,13 +12,13 @@
   "author": "Adrian Wieprzkowicz <adrian.wieprzkowicz@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@danielx/civet": "^0.7.9",
-    "discord.js": "^14.13.0",
-    "dotenv": "^16.3.1",
-    "prettier": "^3.0.1"
+    "@danielx/civet": "^0.8.3",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "prettier": "^3.3.3"
   },
   "devDependencies": {
-    "@types/node": "^20.4.7",
-    "esbuild": "^0.18.17"
+    "@types/node": "^22.7.6",
+    "esbuild": "^0.24.0"
   }
 }
