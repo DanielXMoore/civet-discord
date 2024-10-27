@@ -1,6 +1,5 @@
 { ChatInputCommandInteraction, SlashCommandBuilder } from discord.js
 { compileCode, createSnippet } from ../transpile.civet
-{ version as civetVersion } from ../../node_modules/@danielx/civet/package.json
 
 data := new SlashCommandBuilder()
   .setName 'compile'
