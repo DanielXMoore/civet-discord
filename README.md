@@ -49,6 +49,10 @@ private response, and not clutter the channel you are in.
   ```sh
   DISCORD_TOKEN=your-long-token
   ```
+* If you want to announce new Civet versions to a channel, also add
+  ```sh
+  MOTD_CHANNEL=id-of-channel
+  ```
 * `pnpm install`
 * `pnpm build` to produce `dist/index.js`
 * `pnpm start` or `node dist/index.js` to start bot

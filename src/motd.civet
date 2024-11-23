@@ -1,0 +1,70 @@
+type { Client } from discord.js
+fs from fs/promises
+path from path
+process from process
+
+// Try to split at line breaks
+maxMessageLength := 2000
+function splitMessage(text: string): string[]
+  parts := []
+  while text# > maxMessageLength
+    cut .= text.lastIndexOf '\n', maxMessageLength - 1
+    if cut < 0
+      cut = maxMessageLength
+    parts.push text[..<cut]
+    text = text[cut..].replace /^\n/, ''
+  parts.push text
+  parts
+
+export function motd(client: Client): Promise<void>
+  unless motdChannel := process.env['MOTD_CHANNEL']
+    console.log "MOTD_CHANNEL environment variable not set"
+    return
+
+  let channel
+  try
+    channel = await client.channels.fetch motdChannel
+  catch e
+    console.log "Failed to find MOTD_CHANNEL:", e.message
+    return
+  unless channel
+    console.log "Failed to find MOTD_CHANNEL"
+    return
+
+  filename := path.join __dirname, '..', 'bot-motd.md'
+  let motd: string
+  try
+    motd = await fs.readFile filename, encoding: 'utf8'
+  catch
+    console.log "No MOTD"
+    return
+  
+  // Prevent links from previewing
+  motd = motd
+  .replace /\]\((?!<)([^()]*)\)/g, "](<$1>)"
+
+  // Split into separate messages for multiple versions
+  parts := []
+  while match := motd.match /\n\#\#\s/
+    parts.push motd[..<match.index].trimEnd()
+    motd = motd[match.index!+1..]
+  parts.push motd
+
+  // Further split long messages
+  for i of [parts#>..0]
+    while parts[i]# > maxMessageLength
+      parts.splice i, 1, ...splitMessage parts[i]
+
+  console.log `Sending MOTD to channel '${channel.name}':`
+  for each part of parts
+    console.log "---------------"
+    console.log part
+    try
+      await channel.send part
+    catch e
+      console.log "Failed to send MOTD:", e.message
+      return
+  console.log "---------------"
+
+  // Prevent repeating the same MOTD
+  await fs.unlink filename

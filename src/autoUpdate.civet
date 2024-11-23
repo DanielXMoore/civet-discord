@@ -6,12 +6,15 @@
  */
 
 {spawnSync} from child_process
+fs from fs
 process from process
 path from path
 
 function command(command: string, ...args: string[])
   console.log `> ${command} ${args.join ' '}`
-  child := spawnSync command, args, encoding: 'utf8'
+  child := spawnSync command, args,
+    encoding: 'utf8'
+    shell: true
   if child.error
     throw new Error `spawn failed: ${child.error}`
   else
@@ -19,15 +22,49 @@ function command(command: string, ...args: string[])
     console.log child.stderr
   child
 
+function currentVersion(): string
+  fs.readFileSync 'node_modules/@danielx/civet/package.json', 'utf8'
+  |> JSON.parse
+  |> .version
+
+function readChangelog(stopAtVersion: string): string?
+  found .= 0
+  log .= fs.readFileSync 'node_modules/@danielx/civet/CHANGELOG.md', 'utf8'
+  // Strip preamble
+  .replace /^[^]*?##/, =>
+    found++
+    '##'
+  // Strip all old versions
+  .replace ///(^|\n+)\#\#\s+#{stopAtVersion.replace /\./g, '\\.'}[^]*///, =>
+    found++
+    ''
+  if found is 2
+    log
+  else
+    console.warn `Failed to find version ${stopAtVersion} in Civet CHANGELOG [${found} should be 2]`
+    return
+
 // Change into repository root directory, one level up from this script
 dirname := path.join __dirname, '..'
 console.log `> cd ${dirname}`
 process.chdir dirname
 
 // Attempt to update Civet
+previousVersion := currentVersion()
 pnpm := command 'pnpm', 'update', '--latest', '@danielx/civet'
+newVersion := currentVersion()
+console.log 'Updated', previousVersion, '->', newVersion
 
-// If there was a change, reload bot with 0 downtime
-unless pnpm.stdout.includes 'Already up to date'
-  command 'pnpm', 'build'
+updated := previousVersion is not newVersion
+if updated
+  // Announce release notes
+  if changelog := readChangelog previousVersion
+    fs.writeFileSync 'bot-motd.md', changelog
+    console.log 'Changelog:'
+    console.log '----------'
+    console.log changelog
+    console.log '----------'
+
+  // Reload bot with 0 downtime
+  command 'pnpm', 'build' // update internal version
   command 'pm2', 'reload', 'civet-discord'
