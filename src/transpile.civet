@@ -1,3 +1,4 @@
+"civet coffeeInterpolation"
 type { Message, MessageCreateOptions, RawFile } from discord.js
 type { ClientWithCache } from ./index.civet
 * as prettier from prettier

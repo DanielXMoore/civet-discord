@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@danielx/civet':
-        specifier: ^0.8.16
-        version: 0.8.16(typescript@5.4.5)
+        specifier: ^0.9.0
+        version: 0.9.0(typescript@5.4.5)
       discord.js:
         specifier: ^14.16.3
         version: 14.16.3
@@ -34,8 +34,8 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@danielx/civet@0.8.16':
-    resolution: {integrity: sha512-IXPJ6dncpsRTY9fN0bjf7Ex2GQ11hzCiSQG0a4imPixOcmNzhogR9BbxwlktyseS0AxSHTLWrLkADOdfkCpeig==}
+  '@danielx/civet@0.9.0':
+    resolution: {integrity: sha512-DjeJ2gAXPK2g2JlVPAspQkp1AWftofl6WgxDb10rYVJN3BTf7E4es4rHxP56lEengZMwAtxUFEbadjQIZhiiSg==}
     engines: {node: '>=19 || ^18.6.0 || ^16.17.0'}
     hasBin: true
     peerDependencies:
@@ -353,7 +353,7 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@danielx/civet@0.8.16(typescript@5.4.5)':
+  '@danielx/civet@0.9.0(typescript@5.4.5)':
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@typescript/vfs': 1.6.0(typescript@5.4.5)

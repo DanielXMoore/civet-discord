@@ -35,7 +35,7 @@ function readChangelog(stopAtVersion: string): string?
     found++
     '##'
   // Strip all old versions
-  .replace ///(^|\n+)\#\#\s+#{stopAtVersion.replace /\./g, '\\.'}[^]*///, =>
+  .replace ///(^|\n+)\#\#\s+${stopAtVersion.replace /\./g, '\\.'}[^]*///, =>
     found++
     ''
   if found is 2
