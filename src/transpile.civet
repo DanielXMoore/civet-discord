@@ -32,7 +32,7 @@ export transpileResponse := async (message: Message): Promise<MessageCreateOptio
   if transpileds.map(&.about# + &.code#).reduce((+)) > 1500
     reply.files = for each transpiled, i of transpileds[0...10]
       attachment: createSnippet transpiled, false
-      name: `result${i}.ts`
+      name: `result${i}.tsx`
   else
     for transpiled of transpileds
       reply.content += createSnippet(transpiled) + '\n'
