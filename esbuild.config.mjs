@@ -1,5 +1,5 @@
 import esbuild from "esbuild"
-import civetPlugin from "@danielx/civet/esbuild-plugin"
+import civetPlugin from "@danielx/civet/esbuild"
 import packageJSON from "./package.json" with {type: 'json'}
 
 esbuild
@@ -9,7 +9,7 @@ esbuild
     platform: "node",
     outdir: "dist",
     target: "node18",
-    plugins: [civetPlugin()],
+    plugins: [civetPlugin({ ts: "preserve" })],
     external: Object.keys(packageJSON.dependencies),
   })
   .catch(() => process.exit(1))
