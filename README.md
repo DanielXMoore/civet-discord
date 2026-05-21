@@ -65,6 +65,7 @@ To permanently run the bot in the background, we recommend
 
 * `npm install pm2@latest -g`
 * `pm2 startup` (and follow instructions)
+* `pm2 install pm2-logrotate` (to automatically rotate large logs — recommended if you run the automatic upgrade process which generates lots of logs)
 * To run the bot and automatic upgrading of Civet:
   `pm2 start bot.config.js`
 * To run just the bot:
